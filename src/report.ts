@@ -62,15 +62,18 @@ export class WeatherReport {
 
     private async update(): Promise<void> {
         this._point = await new Points(this.latitude, this.longitude).get();
-        this._stations = await new Stations(this._point).get();
 
+        const stationsPromise = new Stations(this._point).get();
+        const forecastPromise = new DailyForecast(this._point).get();
+
+        this._stations = await stationsPromise;
         const [station] = this._stations.features;
         if (station) {
             this._station = station;
             this._current = await new LatestObservation(
-                this._station.properties.stationIdentifier
+                station.properties.stationIdentifier
             ).get();
         }
-        this._forecast = await new DailyForecast(this._point).get();
+        this._forecast = await forecastPromise;
     }
 }
