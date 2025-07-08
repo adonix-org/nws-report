@@ -5,5 +5,6 @@ export * from "./nws";
 export * from "./observation";
 export * from "./points";
 export * from "./products";
+export * from "./report";
 export * from "./stations";
 export * from "./units";
