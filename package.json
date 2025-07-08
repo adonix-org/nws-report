@@ -21,6 +21,7 @@
         "pack": "npm pack --pack-destination ./artifacts"
     },
     "keywords": [
+        "api",
         "nws",
         "client",
         "weather",
@@ -30,7 +31,7 @@
     "author": {
         "name": "Ty Busby",
         "email": "tybusby@gmail.com",
-        "url": "https://www.tybusby.com"
+        "url": "https://github.com/adonix-org/nws"
     },
     "license": "Apache-2.0",
     "devDependencies": {
