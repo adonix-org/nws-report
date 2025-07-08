@@ -1,0 +1,41 @@
+{
+    "name": "nws",
+    "version": "1.0.0",
+    "description": "National Weather Service Client",
+    "type": "module",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "pack": "npm pack --pack-destination ./artifacts"
+    },
+    "keywords": [
+        "nws",
+        "client",
+        "weather",
+        "typescript",
+        "javascript"
+    ],
+    "author": {
+        "name": "Ty Busby",
+        "email": "tybusby@gmail.com",
+        "url": "https://www.tybusby.com"
+    },
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@types/geojson": "^7946.0.16",
+        "tsup": "^8.5.0",
+        "typescript": "^5.8.3"
+    }
+}
