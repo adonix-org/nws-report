@@ -18,7 +18,8 @@
     "scripts": {
         "build": "tsup",
         "dev": "tsup --watch",
-        "pack": "npm pack --pack-destination ./artifacts"
+        "pack": "npm pack --pack-destination ./artifacts",
+        "test": "vitest"
     },
     "keywords": [
         "api",
@@ -37,6 +38,7 @@
     "devDependencies": {
         "@types/geojson": "^7946.0.16",
         "tsup": "^8.5.0",
-        "typescript": "^5.8.3"
+        "typescript": "^5.8.3",
+        "vitest": "^3.2.4"
     }
 }
