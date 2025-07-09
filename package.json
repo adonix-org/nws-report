@@ -1,7 +1,7 @@
 {
-    "name": "nws",
+    "name": "@adonix.org/nws-client",
     "version": "1.0.0",
-    "description": "National Weather Service Client",
+    "description": "TypeScript client for the National Weather Service API",
     "type": "module",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
