@@ -33,7 +33,7 @@
     "author": {
         "name": "Ty Busby",
         "email": "tybusby@gmail.com",
-        "url": "https://github.com/adonix-org/nws"
+        "url": "https://github.com/adonix-org/nws-client"
     },
     "license": "Apache-2.0",
     "devDependencies": {
