@@ -18,7 +18,8 @@
     "scripts": {
         "build": "tsup",
         "dev": "tsup --watch",
-        "pack": "npm pack --pack-destination ./artifacts",
+        "prepare-pack": "node -e \"require('fs').mkdirSync('artifacts', { recursive: true })\"",
+        "pack": "npm run prepare-pack && npm pack --pack-destination ./artifacts",
         "test": "vitest"
     },
     "keywords": [
