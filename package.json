@@ -30,10 +30,14 @@
         "typescript",
         "javascript"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/adonix-org/nws-report.git"
+    },
     "author": {
         "name": "Ty Busby",
         "email": "tybusby@gmail.com",
-        "url": "https://github.com/adonix-org/nws-client"
+        "url": "https://github.com/adonix-org/nws-report"
     },
     "license": "Apache-2.0",
     "devDependencies": {
