@@ -50,6 +50,10 @@ export class HourlyForecast extends BaseGridpointForecast<GridpointHourlyForecas
     }
 }
 
+export type ForecastType = {
+    daily: GridpointDailyForecast;
+    hourly: GridpointHourlyForecast;
+};
 export type GridpointDailyForecast = Forecast<GridpointDailyForecastPeriod>;
 export type GridpointHourlyForecast = Forecast<GridpointHourlyForecastPeriod>;
 

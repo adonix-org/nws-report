@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { DailyForecast, GridpointDailyForecast } from "./forecast.js";
+import { ForecastType, DailyForecast, HourlyForecast } from "./forecast.js";
 import { LatestObservation, Observation } from "./observation.js";
 import { Gridpoint, Points } from "./points.js";
 import { Station, StationCollection, Stations } from "./stations.js";
@@ -24,20 +24,22 @@ export class WeatherReport {
     private _stations?: StationCollection;
     private _station?: Station;
     private _current?: Observation;
-    private _forecast?: GridpointDailyForecast;
+    private _forecast?: ForecastType[keyof ForecastType];
 
     public static async create(
         latitude: number,
-        longitude: number
+        longitude: number,
+        forecast: keyof ForecastType = "daily"
     ): Promise<WeatherReport> {
-        const instance = new WeatherReport(latitude, longitude);
+        const instance = new WeatherReport(latitude, longitude, forecast);
         await instance.update();
         return instance;
     }
 
     private constructor(
         private readonly latitude: number,
-        private readonly longitude: number
+        private readonly longitude: number,
+        private readonly forecastType: keyof ForecastType
     ) {}
 
     public get point() {
@@ -64,7 +66,10 @@ export class WeatherReport {
         this._point = await new Points(this.latitude, this.longitude).get();
 
         const stationsPromise = new Stations(this._point).get();
-        const forecastPromise = new DailyForecast(this._point).get();
+        const forecastPromise =
+            this.forecastType === "daily"
+                ? new DailyForecast(this._point).get()
+                : new HourlyForecast(this._point).get();
 
         this._stations = await stationsPromise;
         const [station] = this._stations.features;
