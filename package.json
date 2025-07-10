@@ -1,7 +1,7 @@
 {
-    "name": "@adonix.org/nws-client",
+    "name": "@adonix.org/nws-report",
     "version": "1.0.0",
-    "description": "TypeScript client for the National Weather Service API",
+    "description": "Generates a weather report from the National Weather Service API",
     "type": "module",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
@@ -25,7 +25,7 @@
     "keywords": [
         "api",
         "nws",
-        "client",
+        "report",
         "weather",
         "typescript",
         "javascript"
