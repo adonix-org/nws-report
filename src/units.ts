@@ -17,13 +17,8 @@
 import { QuantitativeValue } from "./common";
 
 export class Units {
-    public static to_number(
-        quant: QuantitativeValue | undefined
-    ): number | undefined {
-        if (quant && quant.value) {
-            return quant.value;
-        }
-        return undefined;
+    public static to_number(quant?: QuantitativeValue): number | undefined {
+        return quant?.value ?? undefined;
     }
 
     public static c_to_f(celsius: number): number {
