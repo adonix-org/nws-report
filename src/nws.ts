@@ -22,7 +22,7 @@ import {
 } from "./error";
 
 export abstract class NationalWeatherService<T> {
-    private static _origin = "https://nws.tybusby.com";
+    private static _origin = "https://api.weather.gov";
 
     protected readonly params = new URLSearchParams();
 
