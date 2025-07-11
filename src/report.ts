@@ -17,11 +17,10 @@
 import { ForecastType, DailyForecast, HourlyForecast } from "./forecast.js";
 import { LatestObservation, Observation } from "./observation.js";
 import { Gridpoint, Points } from "./points.js";
-import { Station, StationCollection, Stations } from "./stations.js";
+import { Station, Stations } from "./stations.js";
 
 export class WeatherReport {
     private _point?: Gridpoint;
-    private _stations?: StationCollection;
     private _station?: Station;
     private _current?: Observation;
     private _forecast?: ForecastType[keyof ForecastType];
@@ -46,10 +45,6 @@ export class WeatherReport {
         return this._point;
     }
 
-    public get stations() {
-        return this._stations;
-    }
-
     public get station() {
         return this._station;
     }
@@ -71,8 +66,8 @@ export class WeatherReport {
                 ? new DailyForecast(this._point).get()
                 : new HourlyForecast(this._point).get();
 
-        this._stations = await stationsPromise;
-        const [station] = this._stations.features;
+        const stations = await stationsPromise;
+        const [station] = stations.features;
         if (station) {
             this._station = station;
             this._current = await new LatestObservation(
