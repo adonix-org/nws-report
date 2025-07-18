@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import { NWSResponseError } from "./error";
-import { Points } from "./points";
+import { NWSResponseError, Points } from "../dist/index.js";
 
 try {
     const point = await new Points(42.1762, -76.8358).get();
