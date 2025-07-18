@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { ForecastType, DailyForecast, HourlyForecast } from "./forecast.js";
-import { LatestObservation, Observation } from "./observation.js";
-import { Gridpoint, Points } from "./points.js";
-import { Station, Stations } from "./stations.js";
+import { ForecastType, DailyForecast, HourlyForecast } from "./forecast";
+import { LatestObservation, Observation } from "./observation";
+import { Gridpoint, Points } from "./points";
+import { Station, Stations } from "./stations";
 
 export class WeatherReport {
     private _point?: Gridpoint;
