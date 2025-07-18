@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+export * from "./alerts";
 export * from "./common";
 export * from "./error";
 export * from "./forecast";
