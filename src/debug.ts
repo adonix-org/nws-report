@@ -18,8 +18,8 @@ import { NWSResponseError, LatestAlerts } from "../dist/index.js";
 
 try {
     // const point = await new Points(42.1762, -76.8358).get();
-    const alerts = await new LatestAlerts(37.2367, -76.5065, "test").get();
-    console.log(alerts);
+    const alerts = await new LatestAlerts(37.2367, -76.5065, "actual").get();
+    console.log(alerts.features);
 } catch (error) {
     if (error instanceof NWSResponseError) {
         error.details.parameterErrors?.forEach((value) => {
