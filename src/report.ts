@@ -33,7 +33,7 @@ export class WeatherReport {
         forecast: keyof ForecastType = "daily"
     ): Promise<WeatherReport> {
         const instance = new WeatherReport(latitude, longitude, forecast);
-        await instance.update();
+        await instance.refresh();
         return instance;
     }
 
@@ -63,7 +63,7 @@ export class WeatherReport {
         return this._alerts;
     }
 
-    private async update(): Promise<void> {
+    public async refresh(): Promise<void> {
         const alertsPromise = new LatestAlerts(
             this.latitude,
             this.longitude
