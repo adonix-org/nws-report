@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { NWSResponseError, LatestAlerts } from "../dist/index.js";
+import { NWSResponseError, WeatherReport } from "../dist/index.js";
 
 try {
     // const point = await new Points(42.1762, -76.8358).get();
-    const alerts = await new LatestAlerts(37.2367, -76.5065).get();
-    console.log(alerts.features);
+    const report = await WeatherReport.create(37.2367, -76.5065);
+    console.log(report.alerts);
 } catch (error) {
     if (error instanceof NWSResponseError) {
         error.details.parameterErrors?.forEach((value) => {

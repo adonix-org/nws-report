@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Alerts, LatestAlerts } from "./alerts";
 import { ForecastType, DailyForecast, HourlyForecast } from "./forecast";
 import { LatestObservation, Observation } from "./observation";
 import { Gridpoint, Points } from "./points";
@@ -24,6 +25,7 @@ export class WeatherReport {
     private _station?: Station;
     private _current?: Observation;
     private _forecast?: ForecastType[keyof ForecastType];
+    private _alerts?: Alerts;
 
     public static async create(
         latitude: number,
@@ -57,7 +59,16 @@ export class WeatherReport {
         return this._forecast;
     }
 
+    public get alerts() {
+        return this._alerts;
+    }
+
     private async update(): Promise<void> {
+        const alertsPromise = new LatestAlerts(
+            this.latitude,
+            this.longitude
+        ).get();
+
         this._point = await new Points(this.latitude, this.longitude).get();
 
         const stationsPromise = new Stations(this._point).get();
@@ -75,5 +86,6 @@ export class WeatherReport {
             ).get();
         }
         this._forecast = await forecastPromise;
+        this._alerts = await alertsPromise;
     }
 }

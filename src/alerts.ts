@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Point } from "geojson";
+import { Geometry } from "geojson";
 import { NationalWeatherService } from "./nws";
 
 export class LatestAlerts extends NationalWeatherService<Alerts> {
@@ -43,7 +43,7 @@ export interface Alerts {
 interface AlertFeature {
     id: string;
     type: string;
-    geometry?: Point;
+    geometry?: Geometry;
     properties: AlertProperties;
 }
 

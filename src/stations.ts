@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Point } from "geojson";
+import { Geometry } from "geojson";
 import { QuantitativeValue } from "./common";
 import { NationalWeatherService } from "./nws";
 import { Gridpoint } from "./points";
@@ -45,7 +45,7 @@ export interface StationCollection {
 export interface Station {
     id: string;
     type: string;
-    geometry: Point;
+    geometry: Geometry;
     properties: StationProperties;
 }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Point } from "geojson";
+import { Geometry } from "geojson";
 import { QuantitativeValue } from "./common";
 import { NationalWeatherService } from "./nws";
 
@@ -34,7 +34,7 @@ export class Points extends NationalWeatherService<Gridpoint> {
 export interface Gridpoint {
     id: string;
     type: string;
-    geometry: Point;
+    geometry: Geometry;
     properties: GridpointProperties;
 }
 
@@ -60,7 +60,7 @@ interface GridpointProperties {
 
 interface RelativeLocation {
     type: string;
-    geometry: Point;
+    geometry: Geometry;
     properties: RelativeLocationProperties;
 }
 
