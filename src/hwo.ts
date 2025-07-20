@@ -56,8 +56,10 @@ function expandZones(zoneString: string): string[] {
     const zones: string[] = [];
 
     for (const part of parts) {
-        const [start, end] = part.split(">").map((zone) => parseInt(zone, 10));
-
+        const [start, end] = part.split(">").map((s) => {
+            const n = parseInt(s.trim(), 10);
+            return Number.isNaN(n) ? undefined : n;
+        });
         if (start !== undefined && end !== undefined) {
             for (let i = start; i <= end; i++) {
                 zones.push(`${prefix}${i.toString().padStart(3, "0")}`);
