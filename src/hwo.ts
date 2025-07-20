@@ -35,7 +35,7 @@ function parse(product: Product): void {
         .map((s) => s + "\n\n$$\n");
 
     products.forEach((value) => {
-        const [zones] = value.split(/-\d{6}-\n/);
+        const [zones] = value.split(/-\d{6}-/);
         if (zones) {
             parseZone(zones.replace(/-\n/g, "-"));
         }
