@@ -35,10 +35,14 @@ function parse(product: Product): void {
         .map((s) => s + "\n\n$$\n");
 
     products.forEach((value) => {
-        const zone = value
-            .slice(0, value.search("\n"))
-            .slice(0, value.search(/-\d{6}-/));
-        parseZone(zone);
+        const line = value.replace(/-\n/g, "-");
+        let [zone] = line.split("\n");
+        if (zone) {
+            [zone] = zone.split(/-\d{6}-/);
+            if (zone) {
+                parseZone(zone);
+            }
+        }
     });
 }
 
