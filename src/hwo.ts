@@ -58,7 +58,8 @@ function expandZones(zoneString: string): string[] {
     for (const part of parts) {
         const [start, end] = part.split(">").map((s) => {
             const n = parseInt(s.trim(), 10);
-            return Number.isNaN(n) || n > 999 ? undefined : n;
+            if (Number.isNaN(n) || n > 999) return undefined;
+            return n;
         });
         if (start !== undefined && end !== undefined) {
             for (let i = start; i <= end; i++) {
