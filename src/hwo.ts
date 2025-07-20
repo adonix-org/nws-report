@@ -45,9 +45,12 @@ function parse(hwo: Product): void {
 
 function parseZone(raw: string): void {
     const zones = raw.split(/(?<=\d)-(?=[A-Z]{2}Z\d{3})/);
+    const arr: string[] = [];
     zones.forEach((value) => {
-        console.log(expandZones(value));
+        arr.push(...expandZones(value));
     });
+    console.log(raw);
+    console.log(arr);
 }
 
 function expandZones(zoneString: string): string[] {
