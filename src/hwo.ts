@@ -50,9 +50,9 @@ function parseZone(raw: string): void {
     console.log(arr);
 }
 
-function expandZones(zoneString: string): string[] {
-    const prefix = zoneString.slice(0, 3);
-    const parts = zoneString.slice(3).split("-");
+function expandZones(raw: string): string[] {
+    const prefix = raw.slice(0, 3);
+    const parts = raw.slice(3).split("-");
     const zones: string[] = [];
 
     for (const part of parts) {
