@@ -35,9 +35,9 @@ export class Products extends NationalWeatherService<Product | undefined> {
     }
 }
 
-interface Product {
+export interface Product {
     id: string;
-    wmoCollectiveID: string;
+    wmoCollectiveId: string;
     issuingOffice: string;
     issuanceTime: string;
     productCode: string;
