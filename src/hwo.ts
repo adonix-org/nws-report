@@ -16,45 +16,64 @@
 
 import { Product } from "./products";
 
-function parse(product: Product): void {
-    const delimiter = "\n\n";
-    let start = product.productText.indexOf(delimiter);
-    let end = product.productText.indexOf(delimiter, start + delimiter.length);
-    const heading = product.productText.slice(start + delimiter.length, end);
-    console.log(heading);
-    console.log();
+const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\d{6}-)/;
 
-    start = end + delimiter.length;
+interface ProductExt {
+    product: Product;
+    header: string;
+    body: string;
+    zones: string[];
+}
 
-    const products = product.productText
-        .slice(start)
-        .split("$$")
-        .map((s) => s.trim())
-        .filter((s) => s !== "")
-        .filter((s) => /^[A-Z]{2}Z\d{3}/.test(s))
-        .map((s) => s + "\n\n$$\n");
+function parse(product: Product): ProductExt[] {
+    const productExt: ProductExt[] = [];
+    const header = product.productText.slice(
+        0,
+        ZONE_REGEX.exec(product.productText)?.index
+    );
 
-    products.forEach((value) => {
-        const [zones] = value.split(/-\d{6}-/);
+    const products = parseProduct(product.productText);
+    products.forEach((body) => {
+        const [zones] = body.split(/-\d{6}-/);
         if (zones) {
-            parseZone(zones.replace(/-\n/g, "-"));
+            productExt.push({
+                header,
+                product,
+                body,
+                zones: parseZone(zones.replace(/-\n/g, "-")),
+            });
         }
     });
+    return productExt;
 }
 
-function parseZone(raw: string): void {
-    const zones = raw.split(/(?<=\d)-(?=[A-Z]{2}Z\d{3})/);
-    const arr: string[] = [];
-    zones.forEach((value) => {
-        arr.push(...expandZones(value));
+function parseProduct(text: string): string[] {
+    const indexArray: number[] = [];
+    let match;
+    const regex = new RegExp(ZONE_REGEX, "g");
+    while ((match = regex.exec(text)) !== null) {
+        indexArray.push(match.index);
+    }
+
+    const products: string[] = [];
+    for (let i = 0; i < indexArray.length; i++) {
+        products.push(text.slice(indexArray[i], indexArray[i + 1]));
+    }
+    return products;
+}
+
+function parseZone(text: string): string[] {
+    const states = text.split(/(?<=\d)-(?=[A-Z]{2}Z\d{3})/);
+    const zones: string[] = [];
+    states.forEach((state) => {
+        zones.push(...expandZones(state));
     });
-    console.log(raw);
-    console.log(arr);
+    return zones;
 }
 
-function expandZones(raw: string): string[] {
-    const prefix = raw.slice(0, 3);
-    const parts = raw.slice(3).split("-");
+function expandZones(state: string): string[] {
+    const prefix = state.slice(0, 3);
+    const parts = state.slice(3).split("-");
     const zones: string[] = [];
 
     for (const part of parts) {
@@ -82,7 +101,7 @@ const hwo: Product = {
     productCode: "HWO",
     productName: "Hazardous Weather Outlook",
     productText:
-        "\n000\nFLUS41 KBGM 200106\nHWOBGM\n\nHazardous Weather Outlook\nNational Weather Service Binghamton NY\n906 PM EDT Sat Jul 19 2025\n\nNYZ023>025-044>046-055>057-062-PAZ038>040-043-044-047-048-072-210115-\nSchuyler-Chemung-Tompkins-Cortland-Chenango-Otsego-Tioga-Broome-\nDelaware-Sullivan-Bradford-Susquehanna-Northern Wayne-Wyoming-\nLackawanna-Luzerne-Pike-Southern Wayne-\n906 PM EDT Sat Jul 19 2025\n\nThis Hazardous Weather Outlook is for central New York and \nnortheast Pennsylvania.\n\n.DAY ONE...Tonight.\n\nHazardous weather is not expected at this time.\n\n.DAYS TWO THROUGH SEVEN...Sunday through Friday.\n\nScattered showers and thunderstorms are expected on Sunday. A few \nthunderstorms may turn severe and also a few locations could \nexperience excessive rainfall and localized flash flooding.\n\n.SPOTTER INFORMATION STATEMENT...\n\nWeather spotters are encouraged to report significant weather\nconditions according to Standard Operating Procedures. Please relay\nany information about severe weather to the NWS.\n\n$$\n\nNYZ009-015>018-022-036-037-210115-\nNorthern Oneida-Yates-Seneca-Southern Cayuga-Onondaga-Steuben-\nMadison-Southern Oneida-\n906 PM EDT Sat Jul 19 2025\n\nThis Hazardous Weather Outlook is for central New York.\n\n.DAY ONE...Tonight.\n\nNo hazardous weather is expected at this time.\n\n.DAYS TWO THROUGH SEVEN...Sunday through Friday.\n\nThe probability for widespread hazardous weather is low.\n\n.SPOTTER INFORMATION STATEMENT...\n\nSpotter activation is not expected at this time.\n\n$$\n",
+        "\n000\nFLUS41 KBGM 250818\nHWOBGM\n\nHazardous Weather Outlook\nNational Weather Service Binghamton NY\n418 AM EDT Fri Jul 25 2025\n\nNYZ009-015>018-036-037-260830-\nNorthern Oneida-Yates-Seneca-Southern Cayuga-Onondaga-Madison-\nSouthern Oneida-\n418 AM EDT Fri Jul 25 2025\n\nThis Hazardous Weather Outlook is for central New York.\n\n.DAY ONE...Today and tonight.\n\nA cold front will bring scattered showers and thunderstorms today. \nLocally heavy rainfall will be possible in any thunderstorms.\n\n.DAYS TWO THROUGH SEVEN...Saturday through Thursday.\n\nHazardous weather is not expected at this time.\n\n.SPOTTER INFORMATION STATEMENT...\n\nSpotter activation is not expected at this time.\n\n$$\n\nNYZ022>025-044>046-055>057-062-\nPAZ038>040-043-260830-\nSteuben-Schuyler-Chemung-Tompkins-Cortland-Chenango-Otsego-Tioga-\nBroome-Delaware-Sullivan-Bradford-Susquehanna-Northern Wayne-Wyoming-\n418 AM EDT Fri Jul 25 2025\n\nThis Hazardous Weather Outlook is for central New York and \nnortheast Pennsylvania.\n\n.DAY ONE...Today and tonight.\n\nA cold front will bring scattered showers and thunderstorms today, \nespecially during the afternoon. A few of these thunderstorms may \nbecome strong to severe with locally gusty winds and heavy rainfall.\n\n.DAYS TWO THROUGH SEVEN...Saturday through Thursday.\n\nHazardous weather is not expected at this time.\n\n.SPOTTER INFORMATION STATEMENT...\n\nSpotter activation may be needed. Please relay any information about\nsevere weather to the NWS.\n\n$$\n\nPAZ044-047-048-072-260830-\nLackawanna-Luzerne-Pike-Southern Wayne-\n418 AM EDT Fri Jul 25 2025\n\nThis Hazardous Weather Outlook is for northeast Pennsylvania.\n\n.DAY ONE...Today and tonight.\n\nHot and humid conditions are expected today. Peak heat index values\nare expected to be in the mid 90s to near 100.\n\nAlso, a cold front will bring scattered showers and thunderstorms \ntoday, especially during the afternoon. A few of these thunderstorms \nmay become strong to severe with locally gusty winds and heavy \nrainfall.\n\n.DAYS TWO THROUGH SEVEN...Saturday through Thursday.\n\nHazardous weather is not expected at this time.\n\n.SPOTTER INFORMATION STATEMENT...\n\nSpotter activation may be needed. Please relay any information about\nsevere weather to the NWS.\n\n$$\n",
 };
 
 const ffa: Product = {
@@ -95,5 +114,6 @@ const ffa: Product = {
     productText:
         "\n000\nWGUS61 KBGM 170353\nFFABGM\n\nFlood Watch\nNational Weather Service Binghamton NY\n1153 PM EDT Wed Jul 16 2025\n\nPAZ043-044-047-170500-\n/O.CAN.KBGM.FA.A.0010.000000T0000Z-250717T0400Z/\n/00000.0.ER.000000T0000Z.000000T0000Z.000000T0000Z.OO/\nWyoming-Lackawanna-Luzerne-\nIncluding the cities of Wilkes-Barre, Hazleton, Tunkhannock, and\nScranton\n1153 PM EDT Wed Jul 16 2025\n\n...FLOOD WATCH IS CANCELLED...\n\nThe Flash Flood Watch is cancelled for a portion of northeast \nPennsylvania, including the following areas, Lackawanna, Luzerne and \nWyoming.\n\nFlooding is no longer expected to pose a threat. Please continue to \nheed remaining road closures.\n\n$$\n\nKistner\n",
 };
-parse(hwo);
-parse(ffa);
+console.log(parse(hwo));
+
+console.log(parse(ffa));
