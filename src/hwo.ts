@@ -40,7 +40,7 @@ function parse(product: Product): ProductExt[] {
                 header,
                 product,
                 body,
-                zones: parseZone(zones.replace(/-\n/g, "-")),
+                zones: parseZones(zones.replace(/-\n/g, "-")),
             });
         }
     });
@@ -62,16 +62,16 @@ function parseProduct(text: string): string[] {
     return products;
 }
 
-function parseZone(text: string): string[] {
+function parseZones(text: string): string[] {
     const states = text.split(/(?<=\d)-(?=[A-Z]{2}Z\d{3})/);
     const zones: string[] = [];
     states.forEach((state) => {
-        zones.push(...expandZones(state));
+        zones.push(...expandState(state));
     });
     return zones;
 }
 
-function expandZones(state: string): string[] {
+function expandState(state: string): string[] {
     const prefix = state.slice(0, 3);
     const parts = state.slice(3).split("-");
     const zones: string[] = [];
