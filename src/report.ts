@@ -76,6 +76,8 @@ export class WeatherReport {
     }
 
     public async refresh(): Promise<void> {
+        this._products.length = 0;
+
         const alertsPromise = new LatestAlerts(
             this.latitude,
             this.longitude
