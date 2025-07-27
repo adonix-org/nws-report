@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import { NWSResponseError, WeatherReport } from "../dist/index.js";
+import {
+    NationalWeatherService,
+    NWSResponseError,
+    WeatherReport,
+} from "../dist/index.js";
+
+NationalWeatherService.userAgent = "https://github.com/adonix-org/nws-report";
 
 try {
     // const point = await new Points(42.1762, -76.8358).get();

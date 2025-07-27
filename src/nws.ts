@@ -23,6 +23,7 @@ import {
 
 export abstract class NationalWeatherService<T> {
     private static _origin = "https://api.weather.gov";
+    private static _userAgent?: string;
 
     protected readonly params = new URLSearchParams();
 
@@ -38,8 +39,20 @@ export abstract class NationalWeatherService<T> {
         this._origin = origin;
     }
 
+    public static get userAgent(): string | undefined {
+        return this._userAgent;
+    }
+
+    public static set userAgent(userAgent: string) {
+        this._userAgent = userAgent;
+    }
+
     public async get(): Promise<T> {
         const url = new URL(`${NationalWeatherService.origin}${this.resource}`);
+
+        if (NationalWeatherService.userAgent) {
+            this.headers.set("User-Agent", NationalWeatherService.userAgent);
+        }
 
         for (const [key, value] of this.params) {
             url.searchParams.set(key, value);

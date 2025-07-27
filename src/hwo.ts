@@ -68,7 +68,7 @@ function getHeader(product: Product): string {
     if (zoneMatch) {
         return product.productText.slice(0, zoneMatch.index);
     }
-    throw new Error(`Unable to find a zone segment in ${product.productText}`);
+    throw new Error(`Unable to find a zoned segment in ${product.productText}`);
 }
 
 function getSegmentStrings(product: Product): string[] {
