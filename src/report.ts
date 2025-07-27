@@ -16,8 +16,10 @@
 
 import { Alerts, LatestAlerts } from "./alerts";
 import { ForecastType, DailyForecast, HourlyForecast } from "./forecast";
+import { HazardousWeatherOutlook } from "./hwo";
 import { LatestObservation, Observation } from "./observation";
 import { Gridpoint, Points } from "./points";
+import { SegmentedProduct } from "./segment";
 import { Station, Stations } from "./stations";
 
 export class WeatherReport {
@@ -25,6 +27,7 @@ export class WeatherReport {
     private _station?: Station;
     private _current?: Observation;
     private _forecast?: ForecastType[keyof ForecastType];
+    private _hwo?: SegmentedProduct;
     private _alerts?: Alerts;
 
     public static async create(
@@ -63,6 +66,10 @@ export class WeatherReport {
         return this._alerts;
     }
 
+    public get hwo() {
+        return this._hwo;
+    }
+
     public async refresh(): Promise<void> {
         const alertsPromise = new LatestAlerts(
             this.latitude,
@@ -71,6 +78,7 @@ export class WeatherReport {
 
         this._point = await new Points(this.latitude, this.longitude).get();
 
+        const hwoPromise = new HazardousWeatherOutlook(this._point).get();
         const stationsPromise = new Stations(this._point).get();
         const forecastPromise =
             this.forecastType === "daily"
@@ -85,6 +93,8 @@ export class WeatherReport {
                 station.properties.stationIdentifier
             ).get();
         }
+
+        this._hwo = await hwoPromise;
         this._forecast = await forecastPromise;
         this._alerts = await alertsPromise;
     }
