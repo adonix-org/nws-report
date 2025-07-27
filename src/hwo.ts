@@ -19,21 +19,21 @@ import { Product } from "./products";
 
 const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\d{6}-)/;
 
-interface ProductExt {
+interface SegmentedProduct {
     product: Product;
     header: string;
-    segments: ProductSegment[];
+    segments: Segment[];
 }
 
-interface ProductSegment {
+interface Segment {
     zoneText: string;
     zones: string[];
     timestamp: string;
     body: string;
 }
 
-function filter(point: Gridpoint, product: ProductExt): ProductExt {
-    const zone = extractZone(point);
+function filter(point: Gridpoint, product: SegmentedProduct): SegmentedProduct {
+    const zone = getForecastZone(point);
     if (!zone) return { ...product, segments: [] };
 
     const filtered = product.segments.filter((segment) =>
@@ -43,28 +43,54 @@ function filter(point: Gridpoint, product: ProductExt): ProductExt {
     return { ...product, segments: filtered };
 }
 
-function extractZone(point: Gridpoint) {
-    return extractCode(point.properties.forecastZone);
+function getForecastZone(point: Gridpoint) {
+    return getZone(point.properties.forecastZone);
 }
 
-function extractCode(url: string): string | null {
-    const lastSegment = url.trim().split("/").pop();
-    if (/^[A-Z]{3}\d{3}$/.test(lastSegment ?? "")) {
-        return lastSegment!;
+function getZone(url: string): string {
+    const match = /[A-Z]{2}[ZC]\d{3}/.exec(url);
+    if (match) {
+        return match[0];
     }
-    return null;
+    throw new Error(`Unable to find a zone in ${url}`);
 }
 
-function parse(product: Product): ProductExt {
+function getSegmentedProduct(product: Product): SegmentedProduct {
+    const header = getHeader(product);
+    const segmentStrings = getSegmentStrings(product);
+    const segments = getSegments(segmentStrings);
+
+    return { header, product, segments };
+}
+
+function getHeader(product: Product): string {
     const zoneMatch = ZONE_REGEX.exec(product.productText);
-    const header = zoneMatch
-        ? product.productText.slice(0, zoneMatch.index)
-        : "";
+    if (zoneMatch) {
+        return product.productText.slice(0, zoneMatch.index);
+    }
+    throw new Error(`Unable to find a zone segment in ${product.productText}`);
+}
 
-    const segments: ProductSegment[] = [];
+function getSegmentStrings(product: Product): string[] {
+    const indexArray: number[] = [];
+    let match;
+    const regex = new RegExp(ZONE_REGEX, "g");
+    while ((match = regex.exec(product.productText)) !== null) {
+        indexArray.push(match.index);
+    }
 
-    const products = parseProduct(product.productText);
-    for (const body of products) {
+    const segmentStrings: string[] = [];
+    for (let i = 0; i < indexArray.length; i++) {
+        segmentStrings.push(
+            product.productText.slice(indexArray[i], indexArray[i + 1])
+        );
+    }
+    return segmentStrings;
+}
+
+function getSegments(segmentStrings: string[]): Segment[] {
+    const segments: Segment[] = [];
+    for (const body of segmentStrings) {
         const match = body.match(/^(.*?)-(\d{6})-/s);
         if (match && match[1] && match[2]) {
             const zoneText = match[1];
@@ -74,30 +100,14 @@ function parse(product: Product): ProductExt {
                 body,
                 timestamp,
                 zoneText,
-                zones: parseZones(zoneText),
+                zones: getZones(zoneText),
             });
         }
     }
-
-    return { header, product, segments };
+    return segments;
 }
 
-function parseProduct(text: string): string[] {
-    const indexArray: number[] = [];
-    let match;
-    const regex = new RegExp(ZONE_REGEX, "g");
-    while ((match = regex.exec(text)) !== null) {
-        indexArray.push(match.index);
-    }
-
-    const products: string[] = [];
-    for (let i = 0; i < indexArray.length; i++) {
-        products.push(text.slice(indexArray[i], indexArray[i + 1]));
-    }
-    return products;
-}
-
-function parseZones(text: string): string[] {
+function getZones(text: string): string[] {
     const states = text
         .replaceAll("\n", "")
         .split(/(?<=\d)-(?=[A-Z]{2}Z\d{3})/);
@@ -204,4 +214,4 @@ const point: Gridpoint = {
     },
 };
 
-console.log(filter(point, parse(hwo)));
+console.log(filter(point, getSegmentedProduct(hwo)));
