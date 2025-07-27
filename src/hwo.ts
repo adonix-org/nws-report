@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Gridpoint } from "../dist";
+import { Gridpoint } from "./points";
 import { SegmentedProducts } from "./segment";
 
 export class HazardousWeatherOutlook extends SegmentedProducts {

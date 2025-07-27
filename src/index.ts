@@ -23,5 +23,6 @@ export * from "./observation";
 export * from "./points";
 export * from "./products";
 export * from "./report";
+export * from "./segment";
 export * from "./stations";
 export * from "./units";

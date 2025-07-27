@@ -40,10 +40,10 @@ export interface Alerts {
     updated: string;
 }
 
-interface AlertFeature {
+export interface AlertFeature {
     id: string;
     type: string;
-    geometry?: Geometry;
+    geometry?: Geometry | null;
     properties: AlertProperties;
 }
 

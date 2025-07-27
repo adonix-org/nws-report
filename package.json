@@ -22,7 +22,7 @@
         "pack": "npm run prepare-pack && npm pack --pack-destination ./artifacts",
         "test": "vitest",
         "debug": "tsup && node --no-warnings --loader ts-node/esm ./src/debug.ts",
-        "hwo": "node --no-warnings --loader ts-node/esm ./src/hwo.ts"
+        "link": "node --no-warnings --loader ts-node/esm ./src/link.ts"
     },
     "keywords": [
         "api",
