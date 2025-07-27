@@ -17,7 +17,6 @@
 import { Alerts, LatestAlerts } from "./alerts";
 import { ForecastType, DailyForecast, HourlyForecast } from "./forecast";
 import { HazardousWeatherOutlook } from "./hwo";
-import { AlertMap } from "./alerts-map";
 import { LatestObservation, Observation } from "./observation";
 import { Gridpoint, Points } from "./points";
 import { SegmentedProduct } from "./segment";
@@ -31,7 +30,6 @@ export class WeatherReport {
     private _products: SegmentedProduct[] = [];
     private _hwo?: SegmentedProduct;
     private _alerts?: Alerts;
-    private _mapping = new AlertMap();
 
     public static async create(
         latitude: number,
@@ -80,21 +78,16 @@ export class WeatherReport {
     public async refresh(): Promise<void> {
         this._products.length = 0;
 
-        const alertsPromise = new LatestAlerts(
-            this.latitude,
-            this.longitude
-        ).get();
-
         this._point = await new Points(this.latitude, this.longitude).get();
 
+        const alertsPromise = new LatestAlerts(this._point).get();
         const hwoPromise = new HazardousWeatherOutlook(this._point).get();
-        const stationsPromise = new Stations(this._point).get();
         const forecastPromise =
             this.forecastType === "daily"
                 ? new DailyForecast(this._point).get()
                 : new HourlyForecast(this._point).get();
 
-        const stations = await stationsPromise;
+        const stations = await new Stations(this._point).get();
         const [station] = stations.features;
         if (station) {
             this._station = station;
@@ -104,11 +97,8 @@ export class WeatherReport {
         }
 
         this._alerts = await alertsPromise;
-        const mapPromise = this._mapping.refresh(this._point, this._alerts);
-
         this._hwo = await hwoPromise;
         this._forecast = await forecastPromise;
-        await mapPromise;
 
         if (this._hwo) {
             this._products.push(this._hwo);

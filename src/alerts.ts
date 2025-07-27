@@ -16,16 +16,34 @@
 
 import { Geometry } from "geojson";
 import { NationalWeatherService } from "./nws";
+import { Gridpoint } from "./points";
+import { ZoneUtil } from "./zones";
+import { SegmentedProduct, SegmentedProducts } from "./segment";
 
 export class LatestAlerts extends NationalWeatherService<Alerts> {
     constructor(
-        latitude: number,
-        longitude: number,
+        private readonly point: Gridpoint,
         status: QueryStatus = "actual"
     ) {
         super();
-        this.params.set("point", `${latitude},${longitude}`);
+        this.params.set("zone", `${ZoneUtil.getForecastZone(this.point)}`);
         this.params.set("status", status);
+    }
+
+    public override async get(): Promise<Alerts> {
+        const alerts = await super.get();
+        await Promise.all(
+            alerts.features.map(async (item) => {
+                const identifiers = item.properties.parameters.AWIPSidentifier;
+                const type = identifiers?.[0]?.slice(0, 3);
+                const product = type
+                    ? await new SegmentedProducts(type, this.point, true).get()
+                    : undefined;
+
+                item.product = product;
+            })
+        );
+        return alerts;
     }
 
     protected override get resource(): string {
@@ -45,6 +63,7 @@ export interface AlertFeature {
     type: string;
     geometry?: Geometry | null;
     properties: AlertProperties;
+    product?: SegmentedProduct;
 }
 
 interface AlertProperties {
