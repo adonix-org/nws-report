@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import { Gridpoint } from "../dist";
 import { SegmentedProducts } from "./segment";
 
 export class HazardousWeatherOutlook extends SegmentedProducts {
-    getType(): string {
-        return "HWO";
+    public static readonly PRODUCT_TYPE = "HWO";
+
+    constructor(point: Gridpoint, filter: boolean = true) {
+        super(HazardousWeatherOutlook.PRODUCT_TYPE, point, filter);
     }
 }
