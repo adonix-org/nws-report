@@ -25,8 +25,7 @@ NationalWeatherService.userAgent = "https://github.com/adonix-org/nws-report";
 try {
     // const point = await new Points(42.1762, -76.8358).get();
     const report = await WeatherReport.create(37.2367, -76.5065);
-    console.log(report.hwo?.segments[0]?.zoneText);
-    console.log(report.hwo?.segments[0]?.zones);
+    console.log(report.products);
 } catch (error) {
     if (error instanceof NWSResponseError) {
         error.details.parameterErrors?.forEach((value) => {

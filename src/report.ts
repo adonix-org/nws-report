@@ -27,6 +27,7 @@ export class WeatherReport {
     private _station?: Station;
     private _current?: Observation;
     private _forecast?: ForecastType[keyof ForecastType];
+    private _products: SegmentedProduct[] = [];
     private _hwo?: SegmentedProduct;
     private _alerts?: Alerts;
 
@@ -70,6 +71,10 @@ export class WeatherReport {
         return this._hwo;
     }
 
+    public get products() {
+        return this._products;
+    }
+
     public async refresh(): Promise<void> {
         const alertsPromise = new LatestAlerts(
             this.latitude,
@@ -97,5 +102,9 @@ export class WeatherReport {
         this._hwo = await hwoPromise;
         this._forecast = await forecastPromise;
         this._alerts = await alertsPromise;
+
+        if (this._hwo) {
+            this._products.push(this._hwo);
+        }
     }
 }
