@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Alerts, LatestAlerts } from "./alerts";
+import { Alerts, LatestAlertsProducts } from "./alerts";
 import { ForecastType, DailyForecast, HourlyForecast } from "./forecast";
 import { HazardousWeatherOutlook } from "./hwo";
 import { LatestObservation, Observation } from "./observation";
@@ -80,7 +80,7 @@ export class WeatherReport {
 
         this._point = await new Points(this.latitude, this.longitude).get();
 
-        const alertsPromise = new LatestAlerts(this._point).get();
+        const alertsPromise = new LatestAlertsProducts(this._point).get();
         const hwoPromise = new HazardousWeatherOutlook(this._point).get();
         const forecastPromise =
             this.forecastType === "daily"

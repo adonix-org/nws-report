@@ -22,7 +22,7 @@ import { SegmentedProduct, SegmentedProducts } from "./segment";
 
 export class LatestAlerts extends NationalWeatherService<Alerts> {
     constructor(
-        private readonly point: Gridpoint,
+        protected readonly point: Gridpoint,
         status: QueryStatus = "actual"
     ) {
         super();
@@ -30,8 +30,19 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
         this.params.set("status", status);
     }
 
+    protected override get resource(): string {
+        return `/alerts/active`;
+    }
+}
+
+export class LatestAlertsProducts extends LatestAlerts {
     public override async get(): Promise<Alerts> {
         const alerts = await super.get();
+        await this.setProducts(alerts);
+        return alerts;
+    }
+
+    private async setProducts(alerts: Alerts): Promise<void> {
         await Promise.all(
             alerts.features.map(async (item) => {
                 const identifiers = item.properties.parameters.AWIPSidentifier;
@@ -43,11 +54,6 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
                 item.product = product;
             })
         );
-        return alerts;
-    }
-
-    protected override get resource(): string {
-        return `/alerts/active`;
     }
 }
 
