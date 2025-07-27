@@ -21,7 +21,8 @@ const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\d{6}-)/;
 
 interface SegmentedProduct {
     product: Product;
-    header: string;
+    header?: string;
+    headline?: string;
     segments: Segment[];
 }
 
@@ -32,7 +33,10 @@ interface Segment {
     body: string;
 }
 
-function filter(point: Gridpoint, product: SegmentedProduct): SegmentedProduct {
+export function filter(
+    point: Gridpoint,
+    product: SegmentedProduct
+): SegmentedProduct {
     const zone = getForecastZone(point);
     if (!zone) return { ...product, segments: [] };
 
@@ -56,17 +60,21 @@ function getZone(url: string): string {
 }
 
 function getSegmentedProduct(product: Product): SegmentedProduct {
-    const header = getHeader(product);
+    const [header, headline] = getHeaders(product);
     const segmentStrings = getSegmentStrings(product);
     const segments = getSegments(segmentStrings);
 
-    return { header, product, segments };
+    return { header, headline, product, segments };
 }
 
-function getHeader(product: Product): string {
+function getHeaders(product: Product): string[] {
     const zoneMatch = ZONE_REGEX.exec(product.productText);
     if (zoneMatch) {
-        return product.productText.slice(0, zoneMatch.index);
+        return product.productText
+            .slice(0, zoneMatch.index)
+            .split(/\n\n+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
     }
     throw new Error(`Unable to find a zoned segment in ${product.productText}`);
 }
@@ -107,20 +115,20 @@ function getSegments(segmentStrings: string[]): Segment[] {
     return segments;
 }
 
-function getZones(text: string): string[] {
-    const states = text
+function getZones(zoneText: string): string[] {
+    const states = zoneText
         .replaceAll("\n", "")
         .split(/(?<=\d)-(?=[A-Z]{2}Z\d{3})/);
     const zones: string[] = [];
     states.forEach((state) => {
-        zones.push(...expandState(state));
+        zones.push(...getStateZones(state));
     });
     return zones;
 }
 
-function expandState(state: string): string[] {
-    const prefix = state.slice(0, 3);
-    const parts = state.slice(3).split("-");
+function getStateZones(stateZone: string): string[] {
+    const prefix = stateZone.slice(0, 3);
+    const parts = stateZone.slice(3).split("-");
     const zones: string[] = [];
 
     for (const part of parts) {
@@ -214,4 +222,5 @@ const point: Gridpoint = {
     },
 };
 
-console.log(filter(point, getSegmentedProduct(hwo)));
+console.log(point, getSegmentedProduct(hwo));
+console.log(point, getSegmentedProduct(ffa));
