@@ -17,23 +17,18 @@
 import { Gridpoint } from "./points";
 
 export class ZoneUtil {
-    public static getForecastZone(point: Gridpoint) {
-        return ZoneUtil.getZone(point.properties.forecastZone);
-    }
+    public static readonly getForecastZone = (point: Gridpoint): string =>
+        ZoneUtil.getZone(point.properties.forecastZone);
 
-    public static getFireZone(point: Gridpoint) {
-        return ZoneUtil.getZone(point.properties.fireWeatherZone);
-    }
+    public static readonly getFireZone = (point: Gridpoint): string =>
+        ZoneUtil.getZone(point.properties.fireWeatherZone);
 
-    public static getCounty(point: Gridpoint) {
-        return ZoneUtil.getZone(point.properties.county);
-    }
+    public static readonly getCounty = (point: Gridpoint): string =>
+        ZoneUtil.getZone(point.properties.county);
 
-    public static getZone(text: string): string {
+    public static readonly getZone = (text: string): string => {
         const match = /[A-Z]{2}[ZC]\d{3}/.exec(text);
-        if (match) {
-            return match[0];
-        }
-        throw new Error(`Unable to find a zone in ${text}`);
-    }
+        if (match) return match[0];
+        throw new Error(`Unable to find a zone in: ${text}`);
+    };
 }
