@@ -17,7 +17,7 @@
 import { NationalWeatherService } from "./nws";
 
 export class Products extends NationalWeatherService<Product | undefined> {
-    constructor(private readonly type: string, private readonly cwa: string) {
+    constructor(private readonly type: string, private readonly wfo: string) {
         super();
     }
 
@@ -31,7 +31,7 @@ export class Products extends NationalWeatherService<Product | undefined> {
     }
 
     protected override get resource(): string {
-        return `/products/types/${this.type}/locations/${this.cwa}/latest`;
+        return `/products/types/${this.type}/locations/${this.wfo}/latest`;
     }
 }
 

@@ -36,25 +36,61 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
 }
 
 export class LatestAlertsProducts extends LatestAlerts {
+    private products = new Map<string, SegmentedProduct>();
+
     public override async get(): Promise<Alerts> {
         const alerts = await super.get();
-        await this.setProducts(alerts);
+        await this.getProducts(alerts);
+        for (const feature of alerts.features) {
+            const type = LatestAlertsProducts.getAwipsId(feature).productType;
+            feature.product = this.products.get(type);
+        }
         return alerts;
     }
 
-    private async setProducts(alerts: Alerts): Promise<void> {
+    private async getProducts(alerts: Alerts): Promise<void> {
+        const types = new Set<string>();
+        for (const feature of alerts.features) {
+            types.add(LatestAlertsProducts.getAwipsId(feature).productType);
+        }
         await Promise.all(
-            alerts.features.map(async (item) => {
-                const identifiers = item.properties.parameters.AWIPSidentifier;
-                const type = identifiers?.[0]?.slice(0, 3);
-                const product = type
-                    ? await new SegmentedProducts(type, this.point, true).get()
-                    : undefined;
-
-                item.product = product;
+            [...types].map(async (type) => {
+                const product = await new SegmentedProducts(
+                    type,
+                    this.point,
+                    true
+                ).get();
+                if (product) {
+                    this.products.set(type, product);
+                }
             })
         );
     }
+
+    private static getAwipsId(feature: AlertFeature): AwipsId {
+        const rawId = feature.properties.parameters.AWIPSidentifier?.[0];
+        if (!rawId) {
+            throw new Error("Missing AWIPS ID");
+        }
+
+        const id = rawId.trim().toUpperCase();
+
+        if (!/^[A-Z]{6}$/.test(id)) {
+            throw new Error(`Invalid AWIPS ID: ${id}`);
+        }
+
+        return {
+            id,
+            productType: id.slice(0, 3),
+            wfo: id.slice(3),
+        };
+    }
+}
+
+interface AwipsId {
+    id: string;
+    productType: string;
+    wfo: string;
 }
 
 export interface Alerts {
@@ -64,7 +100,7 @@ export interface Alerts {
     updated: string;
 }
 
-export interface AlertFeature {
+interface AlertFeature {
     id: string;
     type: string;
     geometry?: Geometry | null;
