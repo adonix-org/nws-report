@@ -48,7 +48,7 @@ export class SegmentedProducts {
         return { ...product, segments: filtered };
     }
 
-    private getFilterZone() {
+    private getFilterZone(): string {
         const match = /[A-Z]{2}[ZC]\d{3}/.exec(
             this.point.properties.forecastZone
         );
@@ -65,10 +65,10 @@ export interface SegmentedProduct {
     product: Product;
     header?: string;
     headline?: string;
-    segments: Segment[];
+    segments: ProductSegment[];
 }
 
-interface Segment {
+export interface ProductSegment {
     zoneText: string;
     zones: string[];
     timestamp: string;
@@ -117,8 +117,8 @@ class SegmentParser {
         return segmentStrings;
     }
 
-    private getSegments(segmentStrings: string[]): Segment[] {
-        const segments: Segment[] = [];
+    private getSegments(segmentStrings: string[]): ProductSegment[] {
+        const segments: ProductSegment[] = [];
         for (const body of segmentStrings) {
             const match = body.match(/^(.*?)-(\d{6})-/s);
             if (match && match[1] && match[2]) {

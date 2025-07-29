@@ -67,7 +67,7 @@ export class LatestAlertsProducts extends LatestAlerts {
         );
     }
 
-    private static getAwipsId(feature: AlertFeature): AwipsId {
+    public static getAwipsId(feature: AlertFeature): AwipsId {
         const rawId = feature.properties.parameters.AWIPSidentifier?.[0];
         if (!rawId) {
             throw new Error("Missing AWIPS ID");
