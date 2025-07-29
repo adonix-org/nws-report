@@ -21,7 +21,7 @@
         "prepare-pack": "node -e \"require('fs').mkdirSync('artifacts', { recursive: true })\"",
         "pack": "npm run prepare-pack && npm pack --pack-destination ./artifacts",
         "test": "vitest",
-        "debug": "tsup && node --no-warnings --loader ts-node/esm ./src/debug.ts"
+        "debug": "tsx ./src/debug.ts"
     },
     "keywords": [
         "api",
@@ -43,8 +43,8 @@
     "license": "Apache-2.0",
     "devDependencies": {
         "@types/geojson": "^7946.0.16",
-        "ts-node": "^10.9.2",
         "tsup": "^8.5.0",
+        "tsx": "^4.20.3",
         "typescript": "^5.8.3",
         "vitest": "^3.2.4"
     }
