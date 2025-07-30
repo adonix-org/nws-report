@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-import {
-    NationalWeatherService,
-    NWSResponseError,
-    WeatherReport,
-} from "../dist/index.js";
+import { NWSResponseError } from "./error";
+import { NationalWeatherService } from "./nws";
+import { WeatherReport } from "./report";
 
 NationalWeatherService.userAgent = "https://github.com/adonix-org/nws-report";
 
 try {
     // const point = await new Points(42.1762, -76.8358).get();
     // const report = await WeatherReport.create(37.2367, -76.5065);
-    const report = await WeatherReport.create(42.1762, -76.8358);
+    const report = await WeatherReport.create(42.5056, -92.3551);
     const feature = report.alerts?.features[0];
     if (feature) {
         console.log(feature.properties.headline);
-        console.log(feature.product?.segments[0]?.body);
+        console.log(feature.properties.description);
     }
 } catch (error) {
     if (error instanceof NWSResponseError) {

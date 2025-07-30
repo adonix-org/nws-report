@@ -30,8 +30,26 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
         this.params.set("status", status);
     }
 
+    public override async get(): Promise<Alerts> {
+        const alerts = await super.get();
+        alerts.features = this.filter(alerts.features);
+        return alerts;
+    }
+
     protected override get resource(): string {
         return `/alerts/active`;
+    }
+
+    protected filter(features: AlertFeature[]): AlertFeature[] {
+        // Remove alerts with the same ID.
+        const ids = new Set<string>();
+        return features.filter((feature) => {
+            if (ids.has(feature.properties.id)) {
+                return false;
+            }
+            ids.add(feature.properties.id);
+            return true;
+        });
     }
 }
 
