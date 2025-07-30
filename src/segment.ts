@@ -17,7 +17,7 @@
 import { Gridpoint } from "./points";
 import { Product, Products } from "./products";
 
-const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\d{6}-)/;
+const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\n?\d{6}-)/;
 
 export class SegmentedProducts {
     constructor(
