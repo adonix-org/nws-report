@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Alerts, LatestAlertsProducts } from "./alerts";
+import { AlertsProducts, LatestAlertsProducts } from "./alerts";
 import { ForecastType, DailyForecast, HourlyForecast } from "./forecast";
 import { HazardousWeatherOutlook } from "./hwo";
 import { LatestObservation, Observation } from "./observation";
@@ -29,7 +29,7 @@ export class WeatherReport {
     private _forecast?: ForecastType[keyof ForecastType];
     private _products: SegmentedProduct[] = [];
     private _hwo?: SegmentedProduct;
-    private _alerts?: Alerts;
+    private _alerts?: AlertsProducts;
 
     public static async create(
         latitude: number,

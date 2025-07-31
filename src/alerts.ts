@@ -20,7 +20,9 @@ import { Gridpoint } from "./points";
 import { ZoneUtil } from "./zones";
 import { SegmentedProduct, SegmentedProducts } from "./segment";
 
-export class LatestAlerts extends NationalWeatherService<Alerts> {
+export class LatestAlerts<
+    A extends Alerts = Alerts
+> extends NationalWeatherService<A> {
     constructor(
         protected readonly point: Gridpoint,
         status: QueryStatus = "actual"
@@ -30,7 +32,7 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
         this.params.set("status", status);
     }
 
-    public override async get(): Promise<Alerts> {
+    public override async get(): Promise<A> {
         const alerts = await super.get();
         alerts.features = this.filter(alerts.features);
         return alerts;
@@ -53,7 +55,7 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
     }
 }
 
-export class LatestAlertsProducts extends LatestAlerts {
+export class LatestAlertsProducts extends LatestAlerts<AlertsProducts> {
     public override async get(): Promise<Alerts> {
         const alerts = await super.get();
         const products = await this.fetchProducts(alerts);
@@ -101,6 +103,14 @@ export class LatestAlertsProducts extends LatestAlerts {
     }
 }
 
+export interface AlertsProducts extends Alerts {
+    features: AlertFeatureProduct[];
+}
+
+export interface AlertFeatureProduct extends AlertFeature {
+    product?: SegmentedProduct;
+}
+
 export interface Alerts {
     type: string;
     features: AlertFeature[];
@@ -113,7 +123,6 @@ export interface AlertFeature {
     type: string;
     geometry?: Geometry | null;
     properties: AlertProperties;
-    product?: SegmentedProduct;
 }
 
 interface AlertProperties {

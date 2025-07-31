@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { AlertAdminMessage as AlertAdminMessage } from "./admin";
+import { LatestAlerts } from "./alerts";
 import { NWSResponseError } from "./error";
 import { NationalWeatherService } from "./nws";
 import { WeatherReport } from "./report";
@@ -26,15 +26,12 @@ try {
     // const report = await WeatherReport.create(37.2367, -76.5065);
     const report = await WeatherReport.create(42.5056, -92.352);
 
-    const admin = await new AlertAdminMessage().get();
-    if (admin) {
-        console.log(admin.productText);
+    if (report.point) {
+        const alerts = await new LatestAlerts(report.point).get();
+        console.log(alerts);
     }
 
-    for (const feature of report.alerts!.features) {
-        console.log(feature.properties.headline, "\n");
-        //console.log(feature.product);
-    }
+    // console.log(report.alerts);
 } catch (error) {
     if (error instanceof NWSResponseError) {
         error.details.parameterErrors?.forEach((value) => {
