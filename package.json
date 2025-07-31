@@ -1,6 +1,6 @@
 {
     "name": "@adonix.org/nws-report",
-    "version": "2.2.1",
+    "version": "3.0.0",
     "description": "Generate weather reports from the National Weather Service",
     "type": "module",
     "main": "./dist/index.js",

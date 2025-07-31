@@ -16,11 +16,17 @@
 
 import { Gridpoint } from "./points";
 import { SegmentedProducts } from "./segment";
+import { ZoneUtil } from "./zones";
 
 export class HazardousWeatherOutlook extends SegmentedProducts {
     public static readonly PRODUCT_TYPE = "HWO";
 
     constructor(point: Gridpoint, filter: boolean = true) {
-        super(HazardousWeatherOutlook.PRODUCT_TYPE, point, filter);
+        super(
+            HazardousWeatherOutlook.PRODUCT_TYPE,
+            point.properties.cwa,
+            ZoneUtil.getForecastZone(point),
+            filter
+        );
     }
 }

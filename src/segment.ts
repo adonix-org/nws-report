@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Gridpoint } from "./points";
 import { Product, Products } from "./products";
 
 const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\n?\d{6}-)/;
@@ -22,42 +21,40 @@ const ZONE_REGEX = /([A-Z]{2}Z\d{3}(?:[->\n\dA-Z]*)?-\n?\d{6}-)/;
 export class SegmentedProducts {
     constructor(
         private readonly type: string,
-        private readonly point: Gridpoint,
+        private readonly wfo: string,
+        private readonly zone: string,
         private readonly filter: boolean
     ) {}
 
     public async get(): Promise<SegmentedProduct | undefined> {
-        const product = await new Products(
-            this.type,
-            this.point.properties.cwa
-        ).get();
+        const product = await new Products(this.type, this.wfo).get();
 
         if (!product) {
             return undefined;
         }
 
-        const segmented = new SegmentParser(product).get();
-        return this.filter ? this.doFilter(segmented) : segmented;
+        let segmented = new SegmentParser(product).get();
+
+        if (!segmented?.segments.length) {
+            return undefined;
+        }
+
+        if (this.filter) {
+            segmented = this.doFilter(segmented);
+            if (!segmented.segments.length) {
+                return undefined;
+            }
+        }
+
+        return segmented;
     }
 
     protected doFilter(product: SegmentedProduct): SegmentedProduct {
         const filtered = product.segments.filter((segment) =>
-            segment.zones.includes(this.getFilterZone())
+            segment.zones.includes(this.zone)
         );
 
         return { ...product, segments: filtered };
-    }
-
-    private getFilterZone(): string {
-        const match = /[A-Z]{2}[ZC]\d{3}/.exec(
-            this.point.properties.forecastZone
-        );
-        if (match) {
-            return match[0];
-        }
-        throw new Error(
-            `Unable to find a zone in ${this.point.properties.forecastZone}`
-        );
     }
 }
 
@@ -78,12 +75,19 @@ export interface ProductSegment {
 class SegmentParser {
     constructor(private readonly product: Product) {}
 
-    public get(): SegmentedProduct {
+    public get(): SegmentedProduct | undefined {
+        if (!this.isSegmented()) {
+            return undefined;
+        }
         const [header, headline] = this.getHeaders();
         const segmentStrings = this.getSegmentStrings();
         const segments = this.getSegments(segmentStrings);
 
         return { header, headline, product: this.product, segments };
+    }
+
+    private isSegmented(): boolean {
+        return ZONE_REGEX.test(this.product.productText);
     }
 
     private getHeaders(): string[] {

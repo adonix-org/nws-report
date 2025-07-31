@@ -54,61 +54,51 @@ export class LatestAlerts extends NationalWeatherService<Alerts> {
 }
 
 export class LatestAlertsProducts extends LatestAlerts {
-    private products = new Map<string, SegmentedProduct>();
-
     public override async get(): Promise<Alerts> {
         const alerts = await super.get();
-        await this.getProducts(alerts);
+        const products = await this.fetchProducts(alerts);
         for (const feature of alerts.features) {
-            const type = LatestAlertsProducts.getAwipsId(feature).productType;
-            feature.product = this.products.get(type);
+            const awips = LatestAlertsProducts.getAwipsId(feature);
+            feature.product = products.get(awips);
         }
         return alerts;
     }
 
-    private async getProducts(alerts: Alerts): Promise<void> {
+    private async fetchProducts(
+        alerts: Alerts
+    ): Promise<Map<string, SegmentedProduct>> {
+        const products = new Map<string, SegmentedProduct>();
         const types = new Set<string>();
         for (const feature of alerts.features) {
-            types.add(LatestAlertsProducts.getAwipsId(feature).productType);
+            types.add(LatestAlertsProducts.getAwipsId(feature));
         }
         await Promise.all(
-            [...types].map(async (type) => {
+            [...types].map(async (awips) => {
                 const product = await new SegmentedProducts(
-                    type,
-                    this.point,
+                    awips.slice(0, 3),
+                    awips.slice(3),
+                    ZoneUtil.getForecastZone(this.point),
                     true
                 ).get();
                 if (product) {
-                    this.products.set(type, product);
+                    products.set(awips, product);
                 }
             })
         );
+        return products;
     }
 
-    public static getAwipsId(feature: AlertFeature): AwipsId {
-        const rawId = feature.properties.parameters.AWIPSidentifier?.[0];
-        if (!rawId) {
+    public static getAwipsId(feature: AlertFeature): string {
+        const awipsId = feature.properties.parameters.AWIPSidentifier?.[0];
+        if (!awipsId) {
             throw new Error("Missing AWIPS ID");
         }
 
-        const id = rawId.trim().toUpperCase();
-
-        if (!/^[A-Z]{6}$/.test(id)) {
-            throw new Error(`Invalid AWIPS ID: ${id}`);
+        if (!/^[A-Z]{5,6}$/.test(awipsId)) {
+            throw new Error(`Invalid AWIPS ID: ${awipsId}`);
         }
-
-        return {
-            id,
-            productType: id.slice(0, 3),
-            wfo: id.slice(3),
-        };
+        return awipsId;
     }
-}
-
-interface AwipsId {
-    id: string;
-    productType: string;
-    wfo: string;
 }
 
 export interface Alerts {
