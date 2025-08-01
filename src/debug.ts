@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { LatestAlerts } from "./alerts";
+import { LatestAlertsProducts } from "./alerts";
 import { NWSResponseError } from "./error";
 import { NationalWeatherService } from "./nws";
 import { WeatherReport } from "./report";
@@ -27,7 +27,7 @@ try {
     const report = await WeatherReport.create(42.5056, -92.352);
 
     if (report.point) {
-        const alerts = await new LatestAlerts(report.point).get();
+        const alerts = await new LatestAlertsProducts(report.point).get();
         console.log(alerts);
     }
 

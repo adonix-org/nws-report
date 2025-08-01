@@ -56,7 +56,7 @@ export class LatestAlerts<
 }
 
 export class LatestAlertsProducts extends LatestAlerts<AlertsProducts> {
-    public override async get(): Promise<Alerts> {
+    public override async get(): Promise<AlertsProducts> {
         const alerts = await super.get();
         const products = await this.fetchProducts(alerts);
         for (const feature of alerts.features) {
