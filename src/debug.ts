@@ -19,10 +19,10 @@ import { NWSResponseError } from "./error";
 import { NationalWeatherService } from "./nws";
 import { WeatherReport } from "./report";
 
-NationalWeatherService.userAgent = "https://github.com/adonix-org/nws-report";
+NationalWeatherService.origin = "http://localhost:8787";
 
 try {
-    // const point = await new Points(42.1762, -76.8358).get();
+    // const point = await new Points(0, 0).get();
     // const report = await WeatherReport.create(37.2367, -76.5065);
     const report = await WeatherReport.create(42.5056, -92.352);
 
@@ -37,5 +37,7 @@ try {
         error.details.parameterErrors?.forEach((value) => {
             console.error(value.message, "parameter:", value.parameter);
         });
+    } else {
+        console.error(error);
     }
 }

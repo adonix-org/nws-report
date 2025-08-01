@@ -18,7 +18,8 @@ import {
     NWSResponseError,
     NWSFetchError,
     NWSParseError,
-    NWSProblemDetails,
+    isNWSProblemDetails,
+    HTTPError,
 } from "./error";
 
 export abstract class NationalWeatherService<T> {
@@ -69,22 +70,32 @@ export abstract class NationalWeatherService<T> {
         }
 
         const text = await response.text();
-        let json: T | NWSProblemDetails;
-        try {
-            json = JSON.parse(text);
-        } catch (cause) {
-            throw new NWSParseError(url, text, cause);
-        }
-
         if (response.ok) {
-            return json as T;
+            try {
+                return JSON.parse(text) as T;
+            } catch (cause) {
+                throw new NWSParseError(url, text, cause);
+            }
         }
 
-        throw new NWSResponseError(
-            response.status,
-            url,
-            json as NWSProblemDetails
-        );
+        if (text.trim() === "") {
+            throw new HTTPError(url, response.status, "(empty response text)");
+        }
+
+        const contentType = response.headers.get("Content-Type");
+        if (contentType?.toLowerCase().includes("text/plain") ?? false) {
+            throw new HTTPError(url, response.status, text);
+        }
+
+        try {
+            const json = JSON.parse(text);
+            if (isNWSProblemDetails(json)) {
+                throw new NWSResponseError(response.status, url, json);
+            }
+            throw new HTTPError(url, response.status, JSON.stringify(json));
+        } catch (cause) {
+            throw new HTTPError(url, response.status, text);
+        }
     }
 
     protected abstract get resource(): string;

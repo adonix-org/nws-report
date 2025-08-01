@@ -28,7 +28,7 @@ export class NWSFetchError extends NWSError {
 }
 
 export class NWSParseError extends NWSError {
-    constructor(url: URL, public readonly text: string, cause: unknown) {
+    constructor(url: URL, text: string, cause: unknown) {
         super(url, `${url} ${text}`, cause);
     }
 }
@@ -57,4 +57,29 @@ export interface NWSProblemDetails {
 interface NWSParameterError {
     parameter: string;
     message: string;
+}
+
+export function isNWSProblemDetails(obj: unknown): obj is NWSProblemDetails {
+    if (!obj || typeof obj !== "object") return false;
+
+    const o = obj as Record<string, unknown>;
+
+    return (
+        typeof o["type"] === "string" &&
+        typeof o["title"] === "string" &&
+        typeof o["status"] === "number" &&
+        typeof o["detail"] === "string" &&
+        typeof o["instance"] === "string" &&
+        typeof o["correlationId"] === "string"
+    );
+}
+
+export class HTTPError extends Error {
+    constructor(
+        public readonly url: URL,
+        public readonly status: number,
+        public readonly statusText: string
+    ) {
+        super(`${status} ${statusText}`);
+    }
 }
