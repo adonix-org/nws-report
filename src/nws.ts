@@ -87,15 +87,18 @@ export abstract class NationalWeatherService<T> {
             throw new HTTPError(url, response.status, text);
         }
 
+        let json: unknown;
         try {
-            const json = JSON.parse(text);
-            if (isNWSProblemDetails(json)) {
-                throw new NWSResponseError(response.status, url, json);
-            }
-            throw new HTTPError(url, response.status, JSON.stringify(json));
+            json = JSON.parse(text);
         } catch (cause) {
             throw new HTTPError(url, response.status, text);
         }
+
+        if (isNWSProblemDetails(json)) {
+            throw new NWSResponseError(url, response.status, json);
+        }
+
+        throw new HTTPError(url, response.status, JSON.stringify(json));
     }
 
     protected abstract get resource(): string;
