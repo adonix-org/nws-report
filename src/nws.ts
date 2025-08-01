@@ -94,6 +94,7 @@ export abstract class NationalWeatherService<T> {
             throw new HTTPError(url, response.status, text);
         }
 
+        // content-type = `application/problem+json`
         if (isNWSProblemDetails(json)) {
             throw new NWSResponseError(url, response.status, json);
         }
