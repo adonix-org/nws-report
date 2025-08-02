@@ -27,12 +27,6 @@ export class NWSFetchError extends NWSError {
     }
 }
 
-export class NWSParseError extends NWSError {
-    constructor(url: URL, text: string, cause: unknown) {
-        super(url, `${url} ${text}`, cause);
-    }
-}
-
 export class NWSResponseError extends Error {
     constructor(
         public readonly url: URL,
@@ -74,12 +68,27 @@ export function isNWSProblemDetails(obj: unknown): obj is NWSProblemDetails {
     );
 }
 
+export class NWSJsonError extends Error {
+    constructor(
+        public readonly url: URL,
+        public readonly status: number,
+        public readonly json: unknown
+    ) {
+        super(`${status} Invalid JSON: ${JSON.stringify(json)}`, {
+            cause: json,
+        });
+        this.name = new.target.name;
+    }
+}
+
 export class HTTPError extends Error {
     constructor(
         public readonly url: URL,
         public readonly status: number,
-        public readonly statusText: string
+        public readonly statusText: string,
+        cause?: unknown
     ) {
-        super(`${status} ${statusText}`);
+        super(`${status} ${statusText}`, { cause });
+        this.name = new.target.name;
     }
 }

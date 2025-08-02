@@ -20,6 +20,7 @@ import { NationalWeatherService } from "./nws";
 import { WeatherReport } from "./report";
 
 NationalWeatherService.origin = "http://localhost:8787";
+NationalWeatherService.headers.set("one", "two");
 
 try {
     // const point = await new Points(0, 0).get();

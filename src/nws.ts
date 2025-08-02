@@ -17,22 +17,22 @@
 import {
     NWSResponseError,
     NWSFetchError,
-    NWSParseError,
+    NWSJsonError,
     isNWSProblemDetails,
     HTTPError,
 } from "./error";
 
 export abstract class NationalWeatherService<T> {
     private static _origin = "https://api.weather.gov";
-    private static _userAgent?: string;
+
+    public static readonly headers: Headers = new Headers({
+        Accept: "application/geo+json",
+    });
+    protected readonly headers = new Headers();
 
     protected readonly params = new URLSearchParams();
 
-    protected readonly headers = new Headers({
-        Accept: "application/geo+json",
-    });
-
-    public static get origin(): string {
+    public static get origin() {
         return this._origin;
     }
 
@@ -40,30 +40,22 @@ export abstract class NationalWeatherService<T> {
         this._origin = origin;
     }
 
-    public static get userAgent(): string | undefined {
-        return this._userAgent;
-    }
-
-    public static set userAgent(userAgent: string) {
-        this._userAgent = userAgent;
-    }
-
     public async get(): Promise<T> {
         const url = new URL(`${NationalWeatherService.origin}${this.resource}`);
-
-        if (NationalWeatherService.userAgent) {
-            this.headers.set("User-Agent", NationalWeatherService.userAgent);
-        }
 
         for (const [key, value] of this.params) {
             url.searchParams.set(key, value);
         }
 
+        // Merge static and instance headers.
+        const headers = new Headers(NationalWeatherService.headers);
+        new Headers(this.headers).forEach((v, k) => headers.set(k, v));
+
         let response: Response;
         try {
             response = await fetch(url, {
                 method: "GET",
-                headers: this.headers,
+                headers: headers,
             });
         } catch (cause) {
             throw new NWSFetchError(url, cause);
@@ -74,16 +66,21 @@ export abstract class NationalWeatherService<T> {
             try {
                 return JSON.parse(text) as T;
             } catch (cause) {
-                throw new NWSParseError(url, text, cause);
+                throw new NWSJsonError(url, response.status, cause);
             }
         }
 
+        // --- Everything below is an error, response not ok. ---
         if (text.trim() === "") {
             throw new HTTPError(url, response.status, "(empty response text)");
         }
 
-        const contentType = response.headers.get("Content-Type");
-        if (contentType?.toLowerCase().includes("text/plain") ?? false) {
+        const contentType =
+            response.headers.get("Content-Type")?.toLowerCase() ?? "";
+        const isJsonContent =
+            contentType.includes("application/json") ||
+            contentType.includes("+json");
+        if (!isJsonContent) {
             throw new HTTPError(url, response.status, text);
         }
 
@@ -91,15 +88,17 @@ export abstract class NationalWeatherService<T> {
         try {
             json = JSON.parse(text);
         } catch (cause) {
-            throw new HTTPError(url, response.status, text);
+            // Returned text was not JSON despite content type.
+            throw new HTTPError(url, response.status, text, cause);
         }
 
-        // content-type = `application/problem+json`
         if (isNWSProblemDetails(json)) {
+            // content-type = `application/problem+json`
             throw new NWSResponseError(url, response.status, json);
         }
 
-        throw new HTTPError(url, response.status, JSON.stringify(json));
+        // Error received was JSON, but not as NWSProblemDetails.
+        throw new NWSJsonError(url, response.status, json);
     }
 
     protected abstract get resource(): string;
