@@ -72,10 +72,11 @@ export class NWSJsonError extends Error {
     constructor(
         public readonly url: URL,
         public readonly status: number,
-        public readonly json: unknown
+        public readonly json: unknown,
+        cause?: unknown
     ) {
-        super(`${status} Invalid JSON: ${JSON.stringify(json)}`, {
-            cause: json,
+        super(`${status} Invalid NWS Error: ${JSON.stringify(json)}`, {
+            cause: cause,
         });
         this.name = new.target.name;
     }

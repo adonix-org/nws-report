@@ -66,7 +66,7 @@ export abstract class NationalWeatherService<T> {
             try {
                 return JSON.parse(text) as T;
             } catch (cause) {
-                throw new NWSJsonError(url, response.status, cause);
+                throw new NWSJsonError(url, response.status, text, cause);
             }
         }
 
@@ -81,7 +81,7 @@ export abstract class NationalWeatherService<T> {
             contentType.includes("application/json") ||
             contentType.includes("+json");
         if (!isJsonContent) {
-            throw new HTTPError(url, response.status, text);
+            throw new HTTPError(url, response.status, text, text);
         }
 
         let json: unknown;
